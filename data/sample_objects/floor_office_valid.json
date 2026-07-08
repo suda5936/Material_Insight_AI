@@ -1,0 +1,18 @@
+{
+  "object_id": "F-021",
+  "object_type": "floor_finish",
+  "layer": "A-FLOR",
+  "name": "Office_Floor_021",
+  "space_type": "office",
+  "material": "vinyl tile",
+  "thickness_mm": 5,
+  "review_status": "reviewed",
+  "geometry": {
+    "object_kind": "Brep",
+    "area_m2": 32.0,
+    "bbox": {}
+  },
+  "user_attributes": {
+    "wet_area": false
+  }
+}

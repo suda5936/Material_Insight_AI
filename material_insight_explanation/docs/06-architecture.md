@@ -56,7 +56,7 @@ Rhino 내부에서 사용자가 직접 접하는 계층이다.
 
 ### 6.3.2 Object Inspector
 
-선택 객체의 정보를 표준 JSON 구조로 변환한다.
+선택 객체의 정보를 Rhino 공식 JSON이 아니라 Material Insight 전용 review-object payload 구조로 변환한다.
 
 ```json
 {

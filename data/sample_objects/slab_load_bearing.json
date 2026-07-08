@@ -1,0 +1,19 @@
+{
+  "object_id": "S-040",
+  "object_type": "slab",
+  "layer": "S-SLAB",
+  "name": "Structural_Slab_040",
+  "space_type": "office",
+  "material": "reinforced concrete",
+  "thickness_mm": 180,
+  "review_status": "pending",
+  "geometry": {
+    "object_kind": "Brep",
+    "area_m2": 48.1,
+    "volume_m3": 8.6,
+    "bbox": {}
+  },
+  "user_attributes": {
+    "structural_role": "load_bearing"
+  }
+}

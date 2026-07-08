@@ -1422,10 +1422,10 @@ flowchart TD
     --> B[Rhino Plugin이 객체 정보 추출]
     --> C[프로젝트 컨텍스트 결합]
     --> D[Rule Engine 1차 검사]
-    --> E{문서 검색 필요 여부}
-    E -->|필요| F[RAG Retriever 실행]
-    E -->|불필요| G[규칙 결과 정리]
-    F --> H[관련 문서와 근거 수집]
+    --> E[RAG Retriever 항상 실행]
+    --> F{관련도 threshold 통과?}
+    F -->|통과| H[관련 문서와 근거 채택]
+    F -->|미통과| G[근거 없음으로 규칙 결과 정리]
     H --> I[LLM이 추천과 경고 생성]
     G --> I
     I --> J[결과 패널 표시]
@@ -1446,7 +1446,7 @@ flowchart TD
 
 ### 1. Object Inspector
 
-선택 객체의 형상과 속성을 읽고 Agent가 사용할 표준 데이터로 변환한다.
+선택 객체의 형상과 속성을 읽고 Agent가 사용할 Material Insight 전용 review-object 데이터로 변환한다.
 
 주요 기능:
 
@@ -1724,7 +1724,7 @@ Rhino 내부에서 사용자가 직접 접하는 계층이다.
 
 ### 6.3.2 Object Inspector
 
-선택 객체의 정보를 표준 JSON 구조로 변환한다.
+선택 객체의 정보를 Rhino 공식 JSON이 아니라 Material Insight 전용 review-object payload 구조로 변환한다.
 
 ```json
 {

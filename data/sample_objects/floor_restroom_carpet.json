@@ -1,0 +1,18 @@
+{
+  "object_id": "F-020",
+  "object_type": "floor_finish",
+  "layer": "A-FLOR",
+  "name": "Restroom_Floor_020",
+  "space_type": "restroom",
+  "material": "carpet tile",
+  "thickness_mm": 8,
+  "review_status": "pending",
+  "geometry": {
+    "object_kind": "Brep",
+    "area_m2": 6.2,
+    "bbox": {}
+  },
+  "user_attributes": {
+    "wet_area": true
+  }
+}

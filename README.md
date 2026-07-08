@@ -1,134 +1,95 @@
-# CAD/Rhino Material Insight AI
+# Material Insight AI MVP
 
-> **관심 산업 기반 AI Agent 도입 전략 및 Delivery 설계**
+Rhino/CAD 객체의 재료, 두께, 성능 검토를 지원하는 Human-in-the-loop AI Agent MVP 구현 프로젝트다.
 
-## 프로젝트 개요
+이 저장소의 구현 목표는 `material_insight_explanation`에 정리된 설계 문서와 구현 가이드를 실제 실행 가능한 단계로 옮기는 것이다. 전체 구현은 한 번에 진행하지 않고 phase 단위로 나누어 검토하며, 각 phase가 끝날 때마다 `reports/`에 Markdown report를 남긴다.
 
-**Material Insight AI**는 CAD/Rhino 기반 건축·공간 설계 환경에서
-설계자가 객체를 선택하면 재료 정보, 권장 두께, 성능 기준, 관련 시방서 및
-설계 기준을 실시간으로 제안하는 **Rhino/CAD 플러그인형 AI Agent**이다.
+## 구현 방향
 
-본 프로젝트는 설계를 자동으로 수행하는 AI가 아니라, **설계자의
-의사결정을 보조하는 Human-in-the-loop AI Agent**를 목표로 한다.
+Material Insight AI는 자동 설계 도구가 아니다. Rhino/CAD 객체에서 추출한 메타데이터를 바탕으로 명확한 누락과 위험은 Rule Engine이 먼저 검사하고, 관련 시방서와 카탈로그는 Retrieval/RAG 계층이 항상 검색한다. LLM에는 score threshold를 통과한 근거만 전달하고, 근거가 부족하면 “근거 없음” 상태로 규칙 결과를 정리한다.
 
-------------------------------------------------------------------------
+최종 반영은 항상 설계자의 승인 이후에만 수행한다.
 
-## 문제 정의
+## 현재 진행 상태
 
-건축·공간 설계 과정에서는 다음과 같은 문제가 반복적으로 발생한다.
+완료된 단계:
 
--   객체별 재료 정보 누락
--   부재 두께 검토의 반복 업무
--   시방서 및 기준 문서 검색 시간 증가
--   초급 설계자의 경험 부족
--   프로젝트별 설계 품질 편차
+- **Phase 0. 프로젝트 골격 및 기준 고정**
+- **Phase 1. 백엔드 Skeleton + 데이터 스키마**
+- **Phase 2. 샘플 객체 + Rule Engine**
+- **Phase 3A. 샘플 문서 + Local Retrieval**
+- **Phase 3B. PostgreSQL 저장 구조**
+- **Phase 4. Review Object API End-to-End**
 
-------------------------------------------------------------------------
+다음 단계:
 
-## 프로젝트 목표
+- **Phase 5. Multi-Provider LLM Recommendation**
 
--   객체 선택만으로 설계 검토 정보 제공
--   재료 및 두께 추천
--   설계 기준 및 시방서 근거 제시(RAG)
--   속성 누락 자동 탐지
--   대체 재료 제안
--   설계자의 승인 기반(Human-in-the-loop) 워크플로우 제공
+## 폴더 구조
 
-------------------------------------------------------------------------
-
-## 주요 기능(MVP)
-
-  기능                      설명
-  ------------------------- -------------------------
-  Material Recommendation   객체별 적합한 재료 추천
-  Thickness Validation      권장 두께 검토
-  Property Checker          누락 속성 탐지
-  RAG Search                시방서·카탈로그 검색
-  AI Recommendation         추천 및 경고 생성
-  Review Workflow           승인/보류/수정 관리
-
-------------------------------------------------------------------------
-
-## 대상 사용자
-
--   건축 설계자
--   인테리어 디자이너
--   Rhino/CAD 설계자
--   CAD Operator
--   설계 검토자
-
-------------------------------------------------------------------------
-
-## 시스템 개요
-
-``` text
-Rhino / CAD
-      │
-Plugin SDK
-      │
-Metadata Parser
-      │
-Rule Engine
-      │
-Retriever (RAG)
-      │
-Vector Database
-      │
-LLM
-      │
-Recommendation Engine
-      │
-Review Panel(UI)
-      │
-Designer Approval
+```text
+.
+├── backend/                     # FastAPI Agent Backend
+├── data/                        # 샘플 객체, 규칙, 문서 데이터
+├── docs/                        # 구현 중 생성되는 API/데모 문서
+├── frontend/mock-plugin-ui/     # Rhino 없이 시연 가능한 Mock Plugin UI
+├── infra/                       # Docker, DB 등 실행 인프라 설정
+├── material_insight_explanation/# 과제 보고서, 설계 문서, 구현 가이드
+├── plugin/                      # Rhino Plugin skeleton
+├── reports/                     # phase별 작업 보고서
+└── work/                        # 임시 작업 공간
 ```
 
-------------------------------------------------------------------------
+## Phase 운영 원칙
 
-## 기술 스택(예정)
+1. 각 phase는 독립적으로 검토 가능한 산출물을 만든다.
+2. phase가 끝나면 `reports/phase-XX-...-report.md`를 작성한다.
+3. 진행 중 필요한 경우 phase를 추가하거나 수정할 수 있다.
+4. phase 변경 사항은 해당 report에 이유와 영향 범위를 기록한다.
+5. 구현은 설계 문서와의 일치도를 최우선으로 둔다.
 
--   Rhino SDK / CAD API
--   Python
--   FastAPI
--   Vector Database
--   LLM API
--   RAG
--   Rule Engine
+## 핵심 설계 문서
 
-------------------------------------------------------------------------
+- `material_insight_explanation/material_insight_implementation_guide.md`
+- `material_insight_explanation/docs/10-rhino-plugin-access.md`
+- `material_insight_explanation/docs/11-processing-flow-diagram.md`
+- `material_insight_explanation/docs/12-implementation-phase-roadmap.md`
 
-## 문서 구성
+## MVP 핵심 흐름
 
-    docs/
-    ├── 01-background.md
-    ├── 02-industry-analysis.md
-    ├── 03-ai-landscape.md
-    ├── 04-agent-candidates.md
-    ├── 05-mvp-design.md
-    ├── 06-architecture.md
-    ├── 07-rag-hitl.md
-    ├── 08-demo.md
-    ├── 09-reference.md
+```text
+Rhino/Mock Plugin 객체 입력
+-> 객체 메타데이터 표준화
+-> Rule Engine 누락/위험 검사
+-> Retrieval/RAG 문서 검색 항상 실행
+-> score threshold 기반 sources 채택
+-> LLM 또는 fallback 추천 생성
+-> 사용자 수용/수정/보류/무시
+-> Review Action 로그 저장
+```
 
-------------------------------------------------------------------------
+## 구현 범위
 
-## 프로젝트 방향
+### 포함
 
--   현실적인 업무 보조 AI Agent
--   설계자의 판단을 대체하지 않음
--   근거 기반 추천 제공
--   실제 현업 적용 가능성을 최우선으로 설계
+- FastAPI 백엔드
+- Pydantic 데이터 스키마
+- YAML 기반 Rule Engine
+- 샘플 객체와 샘플 문서
+- Local Retrieval 및 PostgreSQL 저장 구조
+- Multi-provider LLM interface
+- Review Action Logging
+- Mock Plugin UI
+- Rhino Plugin skeleton
 
-------------------------------------------------------------------------
+### 제외
 
-## 진행 계획
+- 구조 안전성 자동 확정
+- 법규 적합성 최종 판정
+- 제조사 제품 자동 발주
+- 사용자 승인 없는 Rhino 객체 자동 수정
+- 전체 건물 자동 설계
 
--   [x] 프로젝트 주제 선정
--   [x] 전체 보고서 구조 설계
--   [ ] 산업 분석
--   [ ] AI 도입 사례 조사
--   [ ] Agent 후보 비교
--   [ ] MVP 상세 설계
--   [ ] 기술 아키텍처
--   [ ] 데모 시나리오
--   [ ] 발표자료 제작
+## 다음 단계
+
+Phase 5에서는 OpenAI API와 vLLM을 교체 가능한 provider 구조로 연결하고, 현재 fallback recommendation을 LLM 기반 구조화 추천으로 확장한다.
