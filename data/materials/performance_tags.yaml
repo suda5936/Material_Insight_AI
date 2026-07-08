@@ -1,0 +1,28 @@
+performance_tags:
+  acoustic:
+    description: Sound insulation or absorption related performance.
+    review_hint: Check room use, wall/ceiling composition, penetrations, and source documents.
+  fire:
+    description: Fire resistance or fire safety related performance.
+    review_hint: Do not confirm compliance without rated assembly evidence and expert review.
+  wet_area:
+    description: Spaces exposed to water, humidity, or cleaning water.
+    review_hint: Check waterproofing, slip resistance, drainage, and manufacturer limitations.
+  maintenance:
+    description: Cleaning, replacement, access, and long-term operation considerations.
+    review_hint: Prefer materials with clear maintenance method and replacement plan.
+  durability:
+    description: Resistance to wear, impact, water, or frequent use.
+    review_hint: Check traffic level and product category.
+  lightweight:
+    description: Lightweight assembly or non-structural partition use.
+    review_hint: Coordinate substrate, framing, and service penetrations.
+  constructability:
+    description: Installation feasibility and coordination considerations.
+    review_hint: Check interfaces with openings, services, and adjacent finishes.
+  privacy:
+    description: Speech privacy or acoustic separation in rooms.
+    review_hint: Review seals, doors, perimeter joints, and wall composition.
+  comfort:
+    description: User comfort, softness, absorption, or tactile quality.
+    review_hint: Check whether comfort conflicts with maintenance or wet-area needs.

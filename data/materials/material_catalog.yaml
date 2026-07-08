@@ -1,0 +1,170 @@
+materials:
+  - material_id: MAT-WALL-GB-001
+    name: gypsum board assembly
+    korean_name: 석고보드 벽체 조합
+    object_types:
+      - interior_wall
+    space_types:
+      - meeting_room
+      - office
+      - corridor
+    performance_tags:
+      - acoustic
+      - maintenance
+      - lightweight
+    recommended_use: Interior partition wall where lightweight construction and finish flexibility are needed.
+    caution_notes:
+      - Confirm board layers and cavity details when acoustic performance is required.
+      - Do not treat this as a fire-rated assembly unless a rated detail is provided.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-WALL-AC-002
+    name: acoustic board assembly
+    korean_name: 차음 보드 벽체 조합
+    object_types:
+      - interior_wall
+    space_types:
+      - meeting_room
+    performance_tags:
+      - acoustic
+      - privacy
+    recommended_use: Meeting room partition wall where acoustic review is required.
+    caution_notes:
+      - Verify board layers, seals, door perimeter details, and penetrations.
+      - Use only as a candidate until project specification confirms the required performance.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-WALL-LSF-003
+    name: light steel frame wall
+    korean_name: 경량철골 벽체
+    object_types:
+      - interior_wall
+    space_types:
+      - meeting_room
+      - office
+      - corridor
+    performance_tags:
+      - lightweight
+      - constructability
+    recommended_use: General non-structural interior partition wall.
+    caution_notes:
+      - Coordinate stud spacing, board layers, insulation, and opening reinforcement.
+      - Structural or fire-rated use requires expert confirmation.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-FLR-VT-010
+    name: vinyl tile
+    korean_name: 비닐타일
+    object_types:
+      - floor_finish
+    space_types:
+      - office
+      - corridor
+    performance_tags:
+      - maintenance
+      - durability
+    recommended_use: General office or corridor floor finish where maintenance is important.
+    caution_notes:
+      - Wet areas require slip resistance and waterproofing review.
+      - Confirm manufacturer installation requirements.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-FLR-PT-011
+    name: porcelain tile
+    korean_name: 포세린 타일
+    object_types:
+      - floor_finish
+    space_types:
+      - restroom
+    performance_tags:
+      - wet_area
+      - durability
+      - maintenance
+    recommended_use: Restroom or wet-area floor finish where water exposure is expected.
+    caution_notes:
+      - Verify slip resistance, waterproofing, drainage, and substrate details.
+      - Manufacturer catalog and project waterproofing detail should be checked together.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-FLR-CT-012
+    name: carpet tile
+    korean_name: 카펫 타일
+    object_types:
+      - floor_finish
+    space_types:
+      - office
+    performance_tags:
+      - acoustic
+      - comfort
+      - maintenance
+    recommended_use: Office floor finish where comfort and acoustic absorption are helpful.
+    caution_notes:
+      - Avoid wet areas unless product documentation explicitly supports the use.
+      - Review maintenance and replacement plan.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-CLG-MF-020
+    name: mineral fiber ceiling tile
+    korean_name: 미네랄울 천장재
+    object_types:
+      - ceiling
+    space_types:
+      - office
+      - corridor
+    performance_tags:
+      - acoustic
+      - maintenance
+    recommended_use: Office ceiling finish where access and acoustic absorption are needed.
+    caution_notes:
+      - Confirm grid system, access requirements, and humidity conditions.
+      - Product-specific fire and acoustic performance must be verified from source documents.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active
+
+  - material_id: MAT-CLG-AC-021
+    name: acoustic ceiling panel
+    korean_name: 흡음 천장 패널
+    object_types:
+      - ceiling
+    space_types:
+      - meeting_room
+      - office
+    performance_tags:
+      - acoustic
+      - comfort
+    recommended_use: Ceiling finish candidate for rooms where acoustic performance matters.
+    caution_notes:
+      - Coordinate with lighting, sprinklers, diffusers, and access panels.
+      - Use project acoustic criteria when available.
+    source_type: material_catalog
+    source: sample_material_catalog
+    version: "2026.07"
+    effective_date: "2026-07-08"
+    status: active

@@ -4,11 +4,14 @@ from dataclasses import dataclass
 from typing import Dict, List, Sequence
 from uuid import uuid4
 
+from app.core.config import get_settings
 from app.models.document import RetrievedDocument
 from app.models.object import ReviewObjectRequest
 from app.models.recommendation import RecommendationResult
 from app.models.rule import RuleResult
+from app.services.llm_client import LLMClient, LLMClientError, build_llm_client
 from app.services.local_retriever import LocalRetriever, load_default_retriever
+from app.services.pgvector_retriever import PgVectorRetriever, load_default_pgvector_retriever
 from app.services.rule_engine import RuleEngine, load_default_rule_engine
 
 
@@ -23,7 +26,8 @@ SEVERITY_RANK: Dict[str, int] = {
 @dataclass(frozen=True)
 class RecommendationOrchestrator:
     rule_engine: RuleEngine
-    retriever: LocalRetriever
+    retriever: LocalRetriever | PgVectorRetriever
+    llm_client: LLMClient
     retrieval_limit: int = 5
 
     def review_object(self, request: ReviewObjectRequest) -> RecommendationResult:
@@ -34,29 +38,106 @@ class RecommendationOrchestrator:
             rule_results,
             limit=self.retrieval_limit,
         )
+        fallback = _build_fallback_recommendation(request, rule_results, sources)
 
-        return RecommendationResult(
-            recommendation_id=f"REC-{uuid4().hex[:12].upper()}",
-            object_id=design_object.object_id,
-            status=_status_for(rule_results),
-            severity=_highest_severity(rule_results),
-            summary=_build_summary(rule_results, sources),
-            detected_issues=[result.issue_code for result in rule_results],
-            material_candidates=_material_candidates(rule_results, sources),
-            thickness_guidance=_thickness_guidance(request, rule_results, sources),
-            performance_notes=_performance_notes(rule_results, sources),
-            required_action=_required_action_for(rule_results, sources),
-            confidence=_confidence(rule_results, sources),
-            sources=sources,
-            disclaimers=_disclaimers(rule_results, sources),
-        )
+        try:
+            llm_result = self.llm_client.generate_recommendation(
+                request=request,
+                rule_results=rule_results,
+                sources=sources,
+                fallback=fallback,
+            )
+        except Exception as exc:
+            return _with_llm_failure_disclaimer(fallback, exc)
+
+        return _constrain_llm_result(llm_result, fallback, rule_results, sources)
 
 
 def load_default_orchestrator() -> RecommendationOrchestrator:
+    settings = get_settings()
     return RecommendationOrchestrator(
         rule_engine=load_default_rule_engine(),
-        retriever=load_default_retriever(),
+        retriever=load_default_retriever_for_settings(settings),
+        llm_client=build_llm_client(settings),
     )
+
+
+def load_default_retriever_for_settings(settings):
+    if settings.rag_retriever_provider == "pgvector":
+        return load_default_pgvector_retriever(settings)
+    if settings.rag_retriever_provider == "local":
+        return load_default_retriever()
+    raise ValueError(f"Unsupported RAG retriever provider: {settings.rag_retriever_provider}")
+
+
+def _build_fallback_recommendation(
+    request: ReviewObjectRequest,
+    rule_results: Sequence[RuleResult],
+    sources: Sequence[RetrievedDocument],
+) -> RecommendationResult:
+    design_object = request.object
+    return RecommendationResult(
+        recommendation_id=f"REC-{uuid4().hex[:12].upper()}",
+        object_id=design_object.object_id,
+        status=_status_for(rule_results),
+        severity=_highest_severity(rule_results),
+        summary=_build_summary(rule_results, sources),
+        detected_issues=[result.issue_code for result in rule_results],
+        material_candidates=_material_candidates(rule_results, sources),
+        thickness_guidance=_thickness_guidance(request, rule_results, sources),
+        performance_notes=_performance_notes(rule_results, sources),
+        required_action=_required_action_for(rule_results, sources),
+        confidence=_confidence(rule_results, sources),
+        sources=list(sources),
+        disclaimers=_disclaimers(rule_results, sources),
+    )
+
+
+def _constrain_llm_result(
+    llm_result: RecommendationResult,
+    fallback: RecommendationResult,
+    rule_results: Sequence[RuleResult],
+    sources: Sequence[RetrievedDocument],
+) -> RecommendationResult:
+    confidence = llm_result.confidence
+    if rule_results and not sources:
+        confidence = min(confidence, fallback.confidence)
+
+    return llm_result.model_copy(
+        update={
+            "recommendation_id": fallback.recommendation_id,
+            "object_id": fallback.object_id,
+            "status": fallback.status,
+            "severity": fallback.severity,
+            "detected_issues": fallback.detected_issues,
+            "required_action": fallback.required_action,
+            "sources": fallback.sources,
+            "confidence": confidence,
+            "disclaimers": _merge_unique(llm_result.disclaimers, fallback.disclaimers),
+        }
+    )
+
+
+def _with_llm_failure_disclaimer(
+    fallback: RecommendationResult,
+    exc: Exception,
+) -> RecommendationResult:
+    return fallback.model_copy(
+        update={
+            "disclaimers": _merge_unique(
+                fallback.disclaimers,
+                [f"LLM recommendation failed; fallback result returned. Reason: {exc}"],
+            )
+        }
+    )
+
+
+def _merge_unique(first: Sequence[str], second: Sequence[str]) -> List[str]:
+    merged: List[str] = []
+    for item in [*first, *second]:
+        if item not in merged:
+            merged.append(item)
+    return merged
 
 
 def _highest_severity(rule_results: Sequence[RuleResult]) -> str:

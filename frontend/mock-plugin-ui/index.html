@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Material Insight Mock Plugin</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Material Insight AI</p>
+          <h1>Mock Plugin Review Panel</h1>
+        </div>
+        <div class="server-control">
+          <label for="apiBaseUrl">Backend</label>
+          <input id="apiBaseUrl" type="url" value="http://localhost:8000" />
+          <button id="healthButton" type="button">연결 확인</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="sidebar" aria-label="Sample Rhino objects">
+          <div class="panel-heading">
+            <h2>객체 목록</h2>
+            <button id="scanButton" type="button">전체 검사</button>
+          </div>
+          <div id="objectList" class="object-list"></div>
+        </aside>
+
+        <section class="object-panel" aria-label="Selected object information">
+          <div class="panel-heading">
+            <h2>객체 정보</h2>
+            <span id="reviewStatus" class="status-pill">pending</span>
+          </div>
+          <dl id="objectDetails" class="detail-grid"></dl>
+          <div class="json-block">
+            <div class="panel-heading">
+              <h3>Review Payload</h3>
+              <button id="reviewButton" type="button">AI 검토</button>
+            </div>
+            <pre id="payloadPreview"></pre>
+          </div>
+        </section>
+
+        <section class="review-panel" aria-label="AI review result">
+          <div class="panel-heading">
+            <h2>AI 검토 결과</h2>
+            <div class="panel-actions">
+              <button id="loadRhinoReviewButton" type="button">Rhino 결과 불러오기</button>
+              <span id="resultSeverity" class="status-pill neutral">not run</span>
+            </div>
+          </div>
+          <div id="message" class="message">객체를 선택한 뒤 AI 검토를 실행하세요.</div>
+          <div id="recommendation" class="recommendation empty-state"></div>
+          <div class="actions">
+            <button data-action="accept" type="button">수용</button>
+            <button data-action="edit" type="button">수정 저장</button>
+            <button data-action="hold" type="button">보류</button>
+            <button data-action="ignore" type="button">무시</button>
+            <button data-action="request_expert_review" type="button">전문가 검토</button>
+          </div>
+          <label class="edit-label" for="editReason">수정/처리 메모</label>
+          <textarea id="editReason" rows="4" placeholder="예: 재료를 acoustic board assembly로 검토 요청"></textarea>
+        </section>
+
+        <section class="scan-panel" aria-label="Model scan result">
+          <div class="panel-heading">
+            <h2>전체 모델 QA</h2>
+            <span id="scanSummary" class="status-pill neutral">not run</span>
+          </div>
+          <div id="scanResults" class="scan-results empty-state">전체 검사를 실행하면 우선순위 목록이 표시됩니다.</div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260708-rhino-latest"></script>
+  </body>
+</html>

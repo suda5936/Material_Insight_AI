@@ -10,7 +10,7 @@
   "object": {
     "object_id": "W-012",
     "object_type": "interior_wall",
-    "layer": "A-WALL",
+    "layer": "A-WALL::PARTITION",
     "name": "MeetingRoom_Wall_012",
     "space_type": "meeting_room",
     "material": null,
@@ -21,11 +21,15 @@
       "length_mm": null,
       "area_m2": 12.4,
       "volume_m3": null,
-      "bbox": {}
+      "bbox": {
+        "min": [0.0, 0.0, 0.0],
+        "max": [4200.0, 100.0, 3000.0]
+      }
     },
     "user_attributes": {
+      "acoustic_required": true,
       "fire_rating": null,
-      "acoustic_required": true
+      "material_insight_object_id": "W-012"
     }
   }
 }

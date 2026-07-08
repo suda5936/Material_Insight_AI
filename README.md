@@ -20,10 +20,22 @@ Material Insight AI는 자동 설계 도구가 아니다. Rhino/CAD 객체에서
 - **Phase 3A. 샘플 문서 + Local Retrieval**
 - **Phase 3B. PostgreSQL 저장 구조**
 - **Phase 4. Review Object API End-to-End**
-
-다음 단계:
-
 - **Phase 5. Multi-Provider LLM Recommendation**
+- **Phase 6. Review Action Logging**
+- **Phase 7. 전체 모델 QA API**
+- **Phase 7B. Material Knowledge Preprocessing**
+- **Phase 8. Mock Plugin UI**
+- **Phase 8B. pgvector RAG 전환**
+- **Phase 9. Rhino Plugin Skeleton**
+- **Phase 9B. Rhino Payload Contract Test**
+- **Phase 10. 통합 테스트 + 발표용 데모**
+
+최종 정리:
+
+- `docs/demo-scenario.md`
+- `docs/design-implementation-mapping.md`
+- `docs/final-validation-checklist.md`
+- `docs/project-implementation-summary.md`
 
 ## 폴더 구조
 
@@ -54,6 +66,12 @@ Material Insight AI는 자동 설계 도구가 아니다. Rhino/CAD 객체에서
 - `material_insight_explanation/docs/10-rhino-plugin-access.md`
 - `material_insight_explanation/docs/11-processing-flow-diagram.md`
 - `material_insight_explanation/docs/12-implementation-phase-roadmap.md`
+- `docs/model-selection.md`
+- `docs/rhino-payload-contract.md`
+- `docs/rhino-plugin-runbook.md`
+- `docs/demo-scenario.md`
+- `docs/design-implementation-mapping.md`
+- `docs/final-validation-checklist.md`
 
 ## MVP 핵심 흐름
 
@@ -80,6 +98,7 @@ Rhino/Mock Plugin 객체 입력
 - Multi-provider LLM interface
 - Review Action Logging
 - Mock Plugin UI
+- pgvector RAG 전환
 - Rhino Plugin skeleton
 
 ### 제외
@@ -92,4 +111,4 @@ Rhino/Mock Plugin 객체 입력
 
 ## 다음 단계
 
-Phase 5에서는 OpenAI API와 vLLM을 교체 가능한 provider 구조로 연결하고, 현재 fallback recommendation을 LLM 기반 구조화 추천으로 확장한다.
+현재 MVP는 backend, Mock Plugin UI, Rhino Plugin skeleton, 실제 Rhino 객체 선택 API 호출, RAG/pgvector 전환 구조까지 Phase 10 기준으로 정리된 상태다. 이후 확장은 Rhino dock panel UI, 실제 승인 버튼 기반 객체 업데이트, 운영용 pgvector 데이터 적재, 기업 문서 수집 pipeline 순서로 진행한다.

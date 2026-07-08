@@ -47,8 +47,11 @@ LLMProvider
 | 5 | Multi-Provider LLM Recommendation | OpenAI/vLLM/mock provider 구조와 추천 생성 | `reports/phase-05-llm-recommendation-report.md` |
 | 6 | Review Action Logging | HITL 사용자 액션 저장 | `reports/phase-06-review-logging-report.md` |
 | 7 | 전체 모델 QA API | 여러 객체 일괄 검사 및 요약 | `reports/phase-07-scan-model-report.md` |
+| 7B | Material Knowledge Preprocessing | 재료 카탈로그와 RAG chunk 전처리 | `reports/phase-07b-material-knowledge-preprocessing-report.md` |
 | 8 | Mock Plugin UI | Rhino 없이 발표 가능한 UI 데모 | `reports/phase-08-mock-plugin-ui-report.md` |
+| 8B | pgvector RAG 전환 | 전처리 chunk를 PostgreSQL/pgvector에 적재하고 검색 교체 | `reports/phase-08b-pgvector-rag-report.md` |
 | 9 | Rhino Plugin Skeleton | 실제 Rhino 연동 경계와 C# 구조 제시 | `reports/phase-09-rhino-plugin-skeleton-report.md` |
+| 9B | Rhino Payload Contract Test | Plugin payload와 backend schema 계약 검증 | `reports/phase-09b-rhino-payload-contract-report.md` |
 | 10 | 통합 테스트 + 발표용 데모 | 최종 검증, README, 시연 시나리오 정리 | `reports/phase-10-integration-demo-report.md` |
 
 ---
@@ -315,7 +318,36 @@ reports/phase-07-scan-model-report.md
 
 ---
 
-## 12.13 Phase 8. Mock Plugin UI
+## 12.13 Phase 7B. Material Knowledge Preprocessing
+
+### 목표
+
+RAG/vector DB에 넣을 재료 지식과 문서 chunk를 공통 schema로 전처리한다.
+
+### 주요 작업
+
+1. MVP용 material catalog 작성
+2. 성능 태그 사전 정의
+3. 기존 문서와 재료 catalog를 동일한 JSONL chunk schema로 변환
+4. source, version, effective_date, status 메타데이터 유지
+5. 추후 pgvector 적재 가능한 데이터 경계 고정
+
+### 검토 기준
+
+- 재료 데이터가 객체 타입, 공간 타입, 성능 태그와 연결되는가
+- 문서 chunk와 재료 chunk가 동일한 검색 입력 schema를 사용하는가
+- 근거 없는 성능 수치나 법규 판정을 임의로 생성하지 않는가
+- 추후 vector DB로 옮겨도 API/추천 흐름을 크게 바꾸지 않아도 되는가
+
+### Report
+
+```text
+reports/phase-07b-material-knowledge-preprocessing-report.md
+```
+
+---
+
+## 12.14 Phase 8. Mock Plugin UI
 
 ### 목표
 
@@ -344,7 +376,36 @@ reports/phase-08-mock-plugin-ui-report.md
 
 ---
 
-## 12.14 Phase 9. Rhino Plugin Skeleton
+## 12.15 Phase 8B. pgvector RAG 전환
+
+### 목표
+
+Phase 7B에서 만든 RAG chunk를 PostgreSQL/pgvector에 적재하고, Local Retrieval을 vector search 기반으로 교체할 수 있는 구조를 만든다.
+
+### 주요 작업
+
+1. `data/processed/rag_chunks.jsonl` 적재 스크립트 작성
+2. embedding provider 설정 추가
+3. pgvector table/schema 확장
+4. vector search retriever 구현
+5. Local Retrieval fallback 유지
+
+### 검토 기준
+
+- 동일한 review-object API에서 검색 구현만 교체 가능한가
+- source, version, effective_date가 검색 결과에 유지되는가
+- threshold 기반 sources 채택 원칙이 유지되는가
+- PostgreSQL 미연결 시 로컬 fallback이 가능한가
+
+### Report
+
+```text
+reports/phase-08b-pgvector-rag-report.md
+```
+
+---
+
+## 12.16 Phase 9. Rhino Plugin Skeleton
 
 ### 목표
 
@@ -372,7 +433,36 @@ reports/phase-09-rhino-plugin-skeleton-report.md
 
 ---
 
-## 12.15 Phase 10. 통합 테스트 + 발표용 데모 정리
+## 12.17 Phase 9B. Rhino Payload Contract Test
+
+### 목표
+
+Rhino Plugin에서 보낼 payload와 backend `ReviewObjectRequest` schema가 실제로 맞는지 검증한다.
+
+### 주요 작업
+
+1. Rhino plugin payload sample 작성
+2. backend contract validation test 추가
+3. optional/null field 처리 확인
+4. geometry/user_attributes mapping 검토
+5. contract mismatch 시 문서와 코드 동시 수정
+
+### 검토 기준
+
+- Rhino 객체 추출 결과가 backend schema로 검증되는가
+- `object_id`, `object_type`, `space_type`, `material`, `thickness_mm` 핵심 필드가 보존되는가
+- Rhino 공식 객체 JSON이 아니라 Material Insight 내부 review payload라는 설명이 유지되는가
+- 실제 plugin 개발자가 확장할 경계가 명확한가
+
+### Report
+
+```text
+reports/phase-09b-rhino-payload-contract-report.md
+```
+
+---
+
+## 12.18 Phase 10. 통합 테스트 + 발표용 데모 정리
 
 ### 목표
 
@@ -401,7 +491,7 @@ reports/phase-10-integration-demo-report.md
 
 ---
 
-## 12.16 Phase Report 공통 템플릿
+## 12.19 Phase Report 공통 템플릿
 
 각 페이즈 report는 다음 형식을 따른다.
 
