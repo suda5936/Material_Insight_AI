@@ -95,7 +95,7 @@ Project 생성
 - 계약 책임 자동 판단
 - 안전/품질 자동 승인
 - 사진/영상 분석
-- 핵심 흐름에서의 BIM/Rhino 연동
+- 핵심 흐름에서의 BIM/3D 모델 연동
 
 ## P6 데이터 입력 방식
 
@@ -117,47 +117,21 @@ P6
 
 XER parser는 향후 확장 기능으로 둔다.
 
-## 보존된 선택 모듈
-
-기존 Rhino 객체 탐지/선택 기능은 완전히 삭제하지 않고 별도 선택 모듈로 보존했다.
-
-```text
-modules/rhino-object-sync/
-```
-
-이 모듈은 Material Review용이 아니다.
-
-현재 역할은 공정 이슈와 관련된 위치/context를 보조적으로 연결하는 것이다.
-
-예시:
-
-```text
-Rhino에서 영향 객체 선택
--> object_id / layer / bbox / location context 저장
--> 해당 정보를 CP delay issue의 보조 context로 사용
-```
-
-단, Rhino 정보는 Schedule Engine의 핵심 계산 입력이 아니다.
-
 ## 주요 폴더
 
 ```text
 backend/                     FastAPI 백엔드
-frontend/mock-plugin-ui/     기존 브라우저 UI, 추후 P6 Copilot용으로 재구성 예정
-plugin/RhinoMaterialInsight/ 보존된 Rhino plugin 구현
-modules/rhino-object-sync/   Rhino object sync 선택 모듈 설명
 docs/                        현재 P6 Copilot 핵심 문서
-reports/                     현재 Phase report
 deliverables/                과제 제출용 Word/PPTX 산출물
+tools/                       보고서/PPTX 생성 스크립트
 ```
 
 ## 다음 구현 방향
 
-1. Rhino sync는 선택 context 모듈로 유지한다.
-2. Project / Schedule Snapshot / Activity / Relationship import를 구현한다.
-3. CSV validation과 snapshot health API를 만든다.
-4. Python 기반 CPM Schedule Engine을 구현한다.
-5. Project-scoped RAG와 evidence validation을 구현한다.
-6. Mapper, Planner, Rule Validator, Reviewer를 연결한다.
-7. Orchestrator와 Markdown report를 만든다.
-8. Frontend를 P6 Copilot 흐름에 맞게 재구성한다.
+1. Project / Schedule Snapshot / Activity / Relationship import를 구현한다.
+2. CSV validation과 snapshot health API를 만든다.
+3. Python 기반 CPM Schedule Engine을 구현한다.
+4. Project-scoped RAG와 evidence validation을 구현한다.
+5. Mapper, Planner, Rule Validator, Reviewer를 연결한다.
+6. Orchestrator와 Markdown report를 만든다.
+7. Frontend를 P6 Copilot 흐름에 맞게 새로 만든다.

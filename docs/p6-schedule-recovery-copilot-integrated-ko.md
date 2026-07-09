@@ -80,7 +80,7 @@ MVP는 다음 업무를 지원한다.
 - 복수 calendar.
 - resource leveling.
 - 비용 자동 산정.
-- 핵심 MVP 흐름에서의 BIM/Rhino 연동.
+- 핵심 MVP 흐름에서의 BIM/3D 모델 연동.
 - 사진 및 영상 분석.
 - 계약 책임 자동 판단.
 - 자동 승인.
@@ -88,7 +88,7 @@ MVP는 다음 업무를 지원한다.
 - fine-tuning.
 - 외부 vector DB 의존.
 
-Rhino object sync는 기존 구현을 폐기하지 않고 보존하되, 핵심 MVP가 아니라 선택적 위치/context 보조 모듈로만 사용한다.
+3D 모델 또는 BIM 연동은 현재 MVP에서 제외한다. 본 프로젝트는 P6 Activity/Relationship 데이터와 현장 문서를 중심으로 일정 영향을 분석한다.
 
 ## 6. 기술 구성
 

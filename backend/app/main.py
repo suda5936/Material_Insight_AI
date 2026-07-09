@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes_health import router as health_router
-from app.api.routes_rhino_sync import router as rhino_sync_router
 from app.core.config import get_settings
 from app.core.errors import APIError, api_error_handler
 
@@ -13,8 +12,7 @@ def create_app() -> FastAPI:
         title="P6 Schedule Recovery Copilot Backend",
         version="0.1.0",
         description=(
-            "Backend API for deterministic P6 schedule recovery support. "
-            "Rhino object sync is preserved as optional issue-location context."
+            "Backend API for deterministic P6 schedule recovery support."
         ),
     )
     app.add_middleware(
@@ -26,7 +24,6 @@ def create_app() -> FastAPI:
     )
     app.add_exception_handler(APIError, api_error_handler)
     app.include_router(health_router)
-    app.include_router(rhino_sync_router)
     return app
 
 

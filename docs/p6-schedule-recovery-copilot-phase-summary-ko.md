@@ -15,7 +15,6 @@
 - Alembic 마이그레이션 뼈대 추가.
 - Schedule Engine 구현을 위한 NetworkX 의존성 추가.
 - 공통 API 에러 응답 구조 추가.
-- 기존 Rhino object sync는 옵션 모듈로 유지.
 
 현재 상태: 진행 완료. 테스트 실패 1건은 `DATABASE_URL` 빈 문자열 fallback 문제였고 수정 완료.
 
@@ -163,7 +162,6 @@ Agent 제한:
 - Recovery scenario 비교.
 - Human confirmation 표시.
 - Markdown report preview.
-- 선택적으로 Rhino object context 표시.
 
 완료 기준:
 
