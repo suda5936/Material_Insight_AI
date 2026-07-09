@@ -19,18 +19,24 @@ AI가 최종 결정을 내리지도 않는다.
 AI는 현장 문제를 구조화하고, 근거 문서를 찾고, 복구안 초안을 만들고, 검토 포인트를 정리한다.  
 일정 계산과 최종 판단은 각각 **Python 코드**와 **사람**이 담당한다.
 
-## 현재 봐야 할 문서
+## 실행 방법
 
-`docs` 폴더에는 현재 핵심 문서만 남겨두었다.
+```bash
+cd backend
+source ./.venv/Scripts/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
+```
 
-- `docs/p6-schedule-recovery-copilot-integrated-ko.md`  
-  전체 설계 기준서. 서비스 정의, MVP 범위, Agent 역할, RAG, Schedule Engine, API 기준이 들어 있다.
+```bash
+cd frontend
+npm run dev
+```
+서버가 뜨면 `http://127.0.0.1:8000/health` 에서 상태를 확인할 수 있다.
 
-- `docs/p6-schedule-recovery-copilot-phase-summary-ko.md`  
-  Phase별 구현 계획. 앞으로 어떤 순서로 개발할지 정리한 문서다.
+실행 후 바로 데모 데이터 불러오기를 사용하면 레포지토리안에있는 데모파일들로 테스트 할 수 있습니다.
 
-- `docs/p6-copilot-processing-flow-explanation-ko.md`  
-  RAG가 무엇을 가져오는지, Issue Mapping 이후 각 단계가 왜 필요한지 설명한 문서다.
+지연 이슈 분석 입력칸 예시 : A동 12층 커튼월 자재 납품이 10일 지연되어 설치 시작이 지연될 가능성이 있습니다.
 
 ## MVP 전체 흐름
 

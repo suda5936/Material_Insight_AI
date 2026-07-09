@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { api, ApiError, type AnalysisRun } from "../api";
 
 interface Props {
   projectId: number;
   initialIssue?: string;
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  REDUCE_START_BLOCK: "착수 지연 단축",
+  REDUCE_ACTIVITY_DURATION: "작업 기간 단축",
+};
+
+function actionLabel(action: string): string {
+  return ACTION_LABELS[action] ?? action;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -175,6 +186,9 @@ export function AnalysisStep({ projectId, initialIssue = "" }: Props) {
           {run.scenarios.length > 0 && (
             <>
               <h3 style={{ fontSize: 14, marginTop: 18 }}>복구 시나리오 비교</h3>
+              <p className="muted">
+                action이 같아도 감축 강도와 실현 방법이 다른 별개 시나리오입니다. 아래 설명을 확인하세요.
+              </p>
               <table>
                 <thead>
                   <tr>
@@ -188,16 +202,26 @@ export function AnalysisStep({ projectId, initialIssue = "" }: Props) {
                 </thead>
                 <tbody>
                   {run.scenarios.map((s) => (
-                    <tr key={s.scenario_index}>
-                      <td>{s.scenario_index + 1}</td>
-                      <td>{s.action}</td>
-                      <td>{s.reduction_days}</td>
-                      <td>{s.scenario_project_duration}</td>
-                      <td>
-                        <strong>{s.recovered_days}일</strong>
-                      </td>
-                      <td>{s.applicable ? "✅" : "—"}</td>
-                    </tr>
+                    <Fragment key={s.scenario_index}>
+                      <tr>
+                        <td rowSpan={2}>{s.scenario_index + 1}</td>
+                        <td>
+                          {actionLabel(s.action)}
+                          <div className="muted" style={{ fontSize: 11 }}>{s.action}</div>
+                        </td>
+                        <td>{s.reduction_days}일</td>
+                        <td>{s.scenario_project_duration}</td>
+                        <td>
+                          <strong>{s.recovered_days}일</strong>
+                        </td>
+                        <td>{s.applicable ? "✅" : "—"}</td>
+                      </tr>
+                      <tr>
+                        <td colSpan={5} className="scenario-rationale">
+                          {s.rationale ?? "설명 없음"}
+                        </td>
+                      </tr>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -232,7 +256,9 @@ export function AnalysisStep({ projectId, initialIssue = "" }: Props) {
           {report && (
             <>
               <h3 style={{ fontSize: 14, marginTop: 18 }}>Markdown 보고서</h3>
-              <div className="report">{report}</div>
+              <div className="report markdown-body">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown>
+              </div>
             </>
           )}
         </>
