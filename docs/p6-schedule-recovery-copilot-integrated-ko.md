@@ -1,8 +1,4 @@
-# P6 Schedule Recovery Copilot 통합 구현 기준서
-
-이 문서는 사용자가 제공한 P6 Schedule Recovery Copilot 설계도와 최종 보고서를 중복 없이 합쳐 정리한 한국어 구현 기준서다.
-
-구현 판단은 이 통합본을 우선 기준으로 삼는다.
+# P6 Schedule Recovery Copilot 구현 기준서
 
 ## 1. 서비스 정의
 
