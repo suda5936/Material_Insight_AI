@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class APIModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, from_attributes=True)
 
 
 class HealthResponse(APIModel):

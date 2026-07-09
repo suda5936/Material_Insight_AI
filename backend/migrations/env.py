@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import get_settings
 from app.db.schema import Base
+from app.db import models as _models  # noqa: F401  (registers ORM metadata)
 
 
 config = context.config

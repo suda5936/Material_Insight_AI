@@ -16,11 +16,10 @@ class Settings(BaseSettings):
     )
     openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4.1-mini", alias="OPENAI_MODEL")
-    vllm_qwen_base_url: str = Field(
-        default="http://localhost:8000/v1",
-        alias="VLLM_QWEN_BASE_URL",
+    openai_embedding_model: str = Field(
+        default="text-embedding-3-small", alias="OPENAI_EMBEDDING_MODEL"
     )
-    vllm_qwen_model: str = Field(default="qwen-27b", alias="VLLM_QWEN_MODEL")
+    embedding_dimensions: int = Field(default=1536, alias="EMBEDDING_DIMENSIONS")
     vllm_gemma_base_url: str = Field(
         default="http://localhost:8002/v1",
         alias="VLLM_GEMMA_BASE_URL",
@@ -31,6 +30,7 @@ class Settings(BaseSettings):
     rag_vector_top_k: int = Field(default=20, alias="RAG_VECTOR_TOP_K")
     rag_final_top_k: int = Field(default=8, alias="RAG_FINAL_TOP_K")
     rag_min_score: float = Field(default=0.35, alias="RAG_MIN_SCORE")
+    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
     @field_validator("database_url", mode="before")
     @classmethod

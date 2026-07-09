@@ -1,0 +1,10 @@
+activity_id,name,original_duration,remaining_duration,is_milestone,is_completed
+A1000,착공,0,0,true,true
+A1010,A동 지하 터파기,10,0,false,true
+A1020,A동 기초 콘크리트,12,6,false,false
+A1030,A동 지상 골조공사,30,30,false,false
+A1040,A동 12층 커튼월 자재 발주 및 납품,15,15,false,false
+A1050,A동 12층 커튼월 설치,12,12,false,false
+A1060,A동 12층 내부 마감,20,20,false,false
+A1070,A동 기계설비 MEP,18,18,false,false
+A1080,준공,0,0,true,false
