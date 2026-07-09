@@ -163,7 +163,7 @@ export function AnalysisStep({ projectId, initialIssue = "" }: Props) {
                 </div>
                 <div className="stat">
                   <div className="k">critical</div>
-                  <div className="v">{impact.is_target_critical ? "예" : "아니오"}</div>
+                  <div className="v">{impact.is_target_critical ? "Y" : "N"}</div>
                 </div>
               </div>
               {impact.critical_path.length > 0 && (
