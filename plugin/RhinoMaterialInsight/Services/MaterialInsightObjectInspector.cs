@@ -16,27 +16,47 @@ public sealed class MaterialInsightObjectInspector
         "material"
     };
 
-    public ReviewObjectRequest BuildReviewRequest(RhinoDoc doc, RhinoObject rhinoObject)
+    public RhinoObjectInput BuildObjectInput(RhinoDoc doc, RhinoObject rhinoObject)
     {
         var attributes = rhinoObject.Attributes;
         var geometry = rhinoObject.Geometry;
 
-        return new ReviewObjectRequest(
-            Project: BuildProjectContext(doc),
-            Object: new DesignObjectInput(
-                ObjectId: ResolveObjectId(attributes, rhinoObject),
-                ObjectType: ReadString(attributes, "object_type"),
-                Layer: ResolveLayerName(doc, attributes),
-                Name: attributes.Name,
-                Material: ReadString(attributes, "material") ?? ResolveMaterialName(doc, rhinoObject),
-                ThicknessMm: ReadDouble(attributes, "thickness_mm"),
-                SpaceType: ReadString(attributes, "space_type"),
-                ReviewStatus: ReadString(attributes, "review_status") ?? "pending",
-                Geometry: BuildGeometrySummary(geometry),
-                UserAttributes: ReadUserAttributes(attributes)));
+        return new RhinoObjectInput(
+            ObjectId: ResolveObjectId(attributes, rhinoObject),
+            ObjectType: ReadString(attributes, "object_type"),
+            Layer: ResolveLayerName(doc, attributes),
+            Name: attributes.Name,
+            Material: ReadString(attributes, "material") ?? ResolveMaterialName(doc, rhinoObject),
+            ThicknessMm: ReadDouble(attributes, "thickness_mm"),
+            SpaceType: ReadString(attributes, "space_type"),
+            ReviewStatus: ReadString(attributes, "review_status") ?? "pending",
+            Geometry: BuildGeometrySummary(geometry),
+            UserAttributes: ReadUserAttributes(attributes));
     }
 
-    private static ProjectContext BuildProjectContext(RhinoDoc doc)
+    public RhinoObjectSummary BuildObjectSummary(RhinoDoc doc, RhinoObject rhinoObject)
+    {
+        var input = BuildObjectInput(doc, rhinoObject);
+        var attributes = rhinoObject.Attributes;
+
+        return new RhinoObjectSummary(
+            ObjectId: input.ObjectId,
+            RhinoId: rhinoObject.Id.ToString(),
+            Name: input.Name,
+            Layer: input.Layer,
+            ObjectKind: input.Geometry.ObjectKind,
+            Material: input.Material,
+            ObjectType: input.ObjectType,
+            SpaceType: input.SpaceType,
+            ThicknessMm: input.ThicknessMm,
+            ReviewStatus: input.ReviewStatus,
+            IsVisible: attributes.Visible,
+            IsLocked: attributes.Mode == ObjectMode.Locked,
+            BBox: input.Geometry.BBox,
+            UserAttributes: input.UserAttributes);
+    }
+
+    public ProjectContext BuildProjectContext(RhinoDoc doc)
     {
         return new ProjectContext(
             ProjectId: ReadDocumentString(doc, "project_id") ?? "RHINO-PROJECT",

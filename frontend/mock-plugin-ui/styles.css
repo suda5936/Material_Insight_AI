@@ -154,6 +154,15 @@ textarea {
   justify-content: flex-end;
 }
 
+.object-actions {
+  justify-content: stretch;
+  margin-bottom: 14px;
+}
+
+.object-actions button {
+  flex: 1;
+}
+
 .panel-actions button {
   background: #475569;
   font-size: 13px;

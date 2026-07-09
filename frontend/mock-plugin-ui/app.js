@@ -1,186 +1,97 @@
 const project = {
-  project_id: "PRJ-MOCK-001",
-  project_type: "interior",
-  design_stage: "basic_design",
-  building_use: "office",
-  region: "KR",
-  priority: "performance",
+  project_id: "RHINO-PROJECT",
 };
 
-const sampleObjects = [
-  {
-    object_id: "W-012",
-    object_type: "interior_wall",
-    layer: "A-WALL",
-    name: "MeetingRoom_Wall_012",
-    space_type: "meeting_room",
-    material: null,
-    thickness_mm: 75,
-    review_status: "pending",
-    geometry: { object_kind: "Brep", area_m2: 12.4, bbox: {} },
-    user_attributes: { fire_rating: null, acoustic_required: true },
-  },
-  {
-    object_id: "F-021",
-    object_type: "floor_finish",
-    layer: "A-FLOR",
-    name: "Office_Floor_021",
-    space_type: "office",
-    material: "vinyl tile",
-    thickness_mm: 5,
-    review_status: "reviewed",
-    geometry: { object_kind: "Brep", area_m2: 32.0, bbox: {} },
-    user_attributes: { wet_area: false },
-  },
-  {
-    object_id: "F-020",
-    object_type: "floor_finish",
-    layer: "A-FLOR",
-    name: "Restroom_Floor_020",
-    space_type: "restroom",
-    material: "carpet tile",
-    thickness_mm: 8,
-    review_status: "pending",
-    geometry: { object_kind: "Brep", area_m2: 9.5, bbox: {} },
-    user_attributes: { wet_area: true },
-  },
-  {
-    object_id: "S-040",
-    object_type: "slab",
-    layer: "S-SLAB",
-    name: "Structural_Slab_040",
-    space_type: "office",
-    material: "reinforced concrete",
-    thickness_mm: 180,
-    review_status: "pending",
-    geometry: { object_kind: "Brep", area_m2: 48.1, volume_m3: 8.6, bbox: {} },
-    user_attributes: { structural_role: "load_bearing" },
-  },
-  {
-    object_id: "OBJ-UNKNOWN",
-    object_type: null,
-    layer: "DEFAULT",
-    name: "Unnamed_Object",
-    space_type: null,
-    material: null,
-    thickness_mm: null,
-    review_status: "pending",
-    geometry: { object_kind: "Brep", bbox: {} },
-    user_attributes: {},
-  },
-];
-
-let selectedObject = sampleObjects[0];
-let latestRecommendation = null;
+let objects = [];
+let selectedObject = null;
 
 const elements = {
   apiBaseUrl: document.querySelector("#apiBaseUrl"),
   healthButton: document.querySelector("#healthButton"),
+  refreshRhinoObjectsButton: document.querySelector("#refreshRhinoObjectsButton"),
+  sendSelectionButton: document.querySelector("#sendSelectionButton"),
   objectList: document.querySelector("#objectList"),
   objectDetails: document.querySelector("#objectDetails"),
-  payloadPreview: document.querySelector("#payloadPreview"),
-  reviewButton: document.querySelector("#reviewButton"),
-  loadRhinoReviewButton: document.querySelector("#loadRhinoReviewButton"),
-  recommendation: document.querySelector("#recommendation"),
+  contextPreview: document.querySelector("#contextPreview"),
+  selectionStatus: document.querySelector("#selectionStatus"),
   message: document.querySelector("#message"),
-  resultSeverity: document.querySelector("#resultSeverity"),
-  reviewStatus: document.querySelector("#reviewStatus"),
-  editReason: document.querySelector("#editReason"),
-  scanButton: document.querySelector("#scanButton"),
-  scanSummary: document.querySelector("#scanSummary"),
-  scanResults: document.querySelector("#scanResults"),
-  actionButtons: document.querySelectorAll("[data-action]"),
 };
 
 function getApiBaseUrl() {
   return elements.apiBaseUrl.value.replace(/\/$/, "");
 }
 
-function buildReviewPayload(object) {
-  return { project, object };
+function buildCpIssueContext(object) {
+  if (!object) return null;
+  return {
+    project_id: project.project_id,
+    rhino_context: {
+      object_id: object.object_id,
+      rhino_id: object.rhino_id,
+      name: object.name,
+      layer: object.layer,
+      object_kind: object.object_kind,
+      bbox: object.bbox || {},
+      is_visible: object.is_visible,
+      is_locked: object.is_locked,
+    },
+    intended_use: "Attach this object as optional model/location context to a CP delay issue.",
+  };
 }
 
 function renderObjectList() {
   elements.objectList.innerHTML = "";
-  sampleObjects.forEach((object) => {
+  if (!objects.length) {
+    elements.objectList.innerHTML = `
+      <div class="empty-state">
+        Rhino 객체가 아직 동기화되지 않았습니다. Rhino에서 MaterialInsightSyncObjects를 실행한 뒤 객체 목록을 불러오세요.
+      </div>
+    `;
+    return;
+  }
+
+  objects.forEach((object) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `object-card ${object.object_id === selectedObject.object_id ? "active" : ""}`;
+    button.className = `object-card ${object.object_id === selectedObject?.object_id ? "active" : ""}`;
     button.innerHTML = `
-      <strong>${object.object_id}</strong>
-      <span>${object.name || "Unnamed"} · ${object.object_type || "unknown"}</span>
-      <span>${object.space_type || "space missing"} · ${object.material || "material missing"}</span>
+      <strong>${escapeHtml(object.object_id)}</strong>
+      <span>${escapeHtml(object.name || "Unnamed")} · ${escapeHtml(object.object_kind || "unknown")}</span>
+      <span>${escapeHtml(object.layer || "layer missing")}</span>
     `;
     button.addEventListener("click", () => {
       selectedObject = object;
-      latestRecommendation = null;
       render();
+      setMessage(`CP 이슈 컨텍스트로 사용할 Rhino 객체를 선택했습니다: ${object.object_id}`);
     });
     elements.objectList.appendChild(button);
   });
 }
 
 function renderObjectDetails() {
-  const rows = [
-    ["Object ID", selectedObject.object_id],
-    ["Name", selectedObject.name],
-    ["Type", selectedObject.object_type],
-    ["Layer", selectedObject.layer],
-    ["Space", selectedObject.space_type],
-    ["Material", selectedObject.material],
-    ["Thickness", selectedObject.thickness_mm ? `${selectedObject.thickness_mm} mm` : null],
-    ["Geometry", selectedObject.geometry?.object_kind],
-  ];
-  elements.objectDetails.innerHTML = rows
-    .map(([label, value]) => `<dt>${label}</dt><dd>${value ?? "<span class='muted'>missing</span>"}</dd>`)
-    .join("");
-  elements.reviewStatus.textContent = selectedObject.review_status || "pending";
-  elements.payloadPreview.textContent = JSON.stringify(buildReviewPayload(selectedObject), null, 2);
-}
-
-function renderRecommendation() {
-  if (!latestRecommendation) {
-    elements.recommendation.className = "recommendation empty-state";
-    elements.recommendation.textContent = "아직 검토 결과가 없습니다.";
-    elements.resultSeverity.textContent = "not run";
-    elements.resultSeverity.className = "status-pill neutral";
+  if (!selectedObject) {
+    elements.objectDetails.innerHTML = "";
+    elements.selectionStatus.textContent = "not selected";
+    elements.contextPreview.textContent = "좌측 목록에서 Rhino 객체를 선택하면 CP 이슈 첨부 컨텍스트가 표시됩니다.";
+    elements.sendSelectionButton.disabled = true;
     return;
   }
 
-  elements.recommendation.className = "recommendation";
-  elements.resultSeverity.textContent = latestRecommendation.severity;
-  elements.resultSeverity.className = `status-pill ${latestRecommendation.severity}`;
-  const sections = [
-    ["요약", [latestRecommendation.summary]],
-    ["탐지된 문제", latestRecommendation.detected_issues],
-    ["재료 후보", latestRecommendation.material_candidates],
-    ["성능 메모", latestRecommendation.performance_notes],
-    ["주의사항", latestRecommendation.disclaimers],
+  elements.sendSelectionButton.disabled = false;
+  elements.selectionStatus.textContent = "selected";
+  const rows = [
+    ["Object ID", selectedObject.object_id],
+    ["Rhino ID", selectedObject.rhino_id],
+    ["Name", selectedObject.name],
+    ["Layer", selectedObject.layer],
+    ["Geometry", selectedObject.object_kind],
+    ["Visible", selectedObject.is_visible],
+    ["Locked", selectedObject.is_locked],
   ];
-  const sourceItems = latestRecommendation.sources.map(
-    (source) => `${source.document_id} · ${source.title} · score ${source.score}`,
-  );
-  elements.recommendation.innerHTML = [
-    ...sections.map(([title, items]) => renderResultSection(title, items)),
-    renderResultSection("근거 문서", sourceItems.length ? sourceItems : ["관련 근거 없음"]),
-    renderThicknessGuidance(),
-  ].join("");
-}
-
-function renderResultSection(title, items) {
-  const safeItems = items && items.length ? items : ["없음"];
-  return `
-    <div class="result-section">
-      <h3>${title}</h3>
-      <ul>${safeItems.map((item) => `<li>${String(item)}</li>`).join("")}</ul>
-    </div>
-  `;
-}
-
-function renderThicknessGuidance() {
-  const guidance = latestRecommendation.thickness_guidance || {};
-  const items = Object.keys(guidance).map((key) => `${key}: ${guidance[key]}`);
-  return renderResultSection("두께 검토", items.length ? items : ["별도 안내 없음"]);
+  elements.objectDetails.innerHTML = rows
+    .map(([label, value]) => `<dt>${label}</dt><dd>${formatValue(value)}</dd>`)
+    .join("");
+  elements.contextPreview.textContent = JSON.stringify(buildCpIssueContext(selectedObject), null, 2);
 }
 
 function setMessage(text, type = "") {
@@ -220,127 +131,70 @@ async function checkHealth() {
   }
 }
 
-async function reviewSelectedObject() {
-  elements.reviewButton.disabled = true;
-  setMessage(`${selectedObject.object_id} 검토 중...`);
+async function refreshRhinoObjects() {
+  elements.refreshRhinoObjectsButton.disabled = true;
+  setMessage("Rhino 객체 목록을 불러오는 중...");
   try {
-    latestRecommendation = await apiPost("/api/v1/review-object", buildReviewPayload(selectedObject));
-    setMessage("AI 검토 결과를 받았습니다.", "success");
-    renderRecommendation();
+    const result = await apiGet(`/api/v1/rhino/objects?project_id=${encodeURIComponent(project.project_id)}`);
+    objects = result.objects || [];
+    if (!objects.some((object) => object.object_id === selectedObject?.object_id)) {
+      selectedObject = objects[0] || null;
+    }
+    render();
+    setMessage(`Rhino 객체 ${objects.length}개를 불러왔습니다.`, "success");
   } catch (error) {
-    setMessage(`AI 검토 실패: ${error.message}`, "error");
+    setMessage(`Rhino 객체 목록 불러오기 실패: ${error.message}`, "error");
   } finally {
-    elements.reviewButton.disabled = false;
+    elements.refreshRhinoObjectsButton.disabled = false;
   }
 }
 
-async function loadLatestRhinoReview({ quiet = false } = {}) {
-  if (!quiet) {
-    setMessage("Rhino 최신 검토 결과를 불러오는 중...");
-  }
-  try {
-    const result = await apiGet("/api/v1/latest-review");
-    if (!result) {
-      if (!quiet) setMessage("아직 Rhino에서 전달된 검토 결과가 없습니다.");
-      return;
-    }
-    if (latestRecommendation?.recommendation_id === result.recommendation_id) {
-      if (!quiet) setMessage("이미 최신 Rhino 검토 결과가 표시되어 있습니다.", "success");
-      return;
-    }
-    latestRecommendation = result;
-    setMessage(`Rhino 객체 ${result.object_id}의 검토 결과를 표시합니다.`, "success");
-    renderRecommendation();
-  } catch (error) {
-    if (!quiet) setMessage(`Rhino 결과 불러오기 실패: ${error.message}`, "error");
-  }
-}
-
-async function submitAction(action) {
-  if (!latestRecommendation) {
-    setMessage("먼저 AI 검토를 실행하세요.", "error");
+async function sendSelectionToRhino() {
+  if (!selectedObject) {
+    setMessage("먼저 좌측 목록에서 Rhino 객체를 선택하세요.", "error");
     return;
   }
-  const editedValues =
-    action === "edit"
-      ? {
-          review_status: "reviewed",
-          note: elements.editReason.value,
-        }
-      : {};
+
+  elements.sendSelectionButton.disabled = true;
   try {
-    const result = await apiPost("/api/v1/review-actions", {
-      recommendation_id: latestRecommendation.recommendation_id,
+    await apiPost("/api/v1/rhino/selection", {
+      project_id: project.project_id,
       object_id: selectedObject.object_id,
-      user_id: "demo_designer",
-      action,
-      edited_values: editedValues,
-      sources: latestRecommendation.sources,
-      reason: elements.editReason.value || null,
     });
-    setMessage(`사용자 액션 저장 완료: ${result.review_action_id}`, "success");
+    setMessage(`선택 객체 ${selectedObject.object_id}를 Rhino로 보냈습니다. Rhino에서 MaterialInsightApplySelection을 실행하세요.`, "success");
   } catch (error) {
-    setMessage(`액션 저장 실패: ${error.message}`, "error");
-  }
-}
-
-async function scanModel() {
-  elements.scanButton.disabled = true;
-  elements.scanResults.textContent = "전체 모델 검사 중...";
-  elements.scanResults.className = "scan-results empty-state";
-  try {
-    const result = await apiPost("/api/v1/scan-model", {
-      project,
-      objects: sampleObjects,
-    });
-    renderScanResults(result);
-    setMessage("전체 모델 QA 결과를 받았습니다.", "success");
-  } catch (error) {
-    elements.scanResults.textContent = `전체 검사 실패: ${error.message}`;
-    setMessage(`전체 검사 실패: ${error.message}`, "error");
+    setMessage(`Rhino 선택 전송 실패: ${error.message}`, "error");
   } finally {
-    elements.scanButton.disabled = false;
+    elements.sendSelectionButton.disabled = false;
   }
 }
 
-function renderScanResults(result) {
-  elements.scanSummary.textContent = `${result.summary.objects_with_issues}/${result.summary.total_objects} issue`;
-  elements.scanSummary.className = "status-pill neutral";
-  if (!result.results.length) {
-    elements.scanResults.className = "scan-results empty-state";
-    elements.scanResults.textContent = "검토 이슈가 없습니다.";
-    return;
+function formatValue(value) {
+  if (value === null || value === undefined || value === "") {
+    return "<span class='muted'>missing</span>";
   }
-  elements.scanResults.className = "scan-results";
-  elements.scanResults.innerHTML = result.results
-    .map(
-      (row) => `
-        <div class="scan-row">
-          <strong>${row.object_id}</strong>
-          <span>${row.issues.map((issue) => issue.issue_code).join(", ") || "no issues"}</span>
-          <span class="status-pill ${row.severity}">${row.required_action}</span>
-        </div>
-      `,
-    )
-    .join("");
+  return escapeHtml(String(value));
+}
+
+function escapeHtml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function bindEvents() {
   elements.healthButton.addEventListener("click", checkHealth);
-  elements.reviewButton.addEventListener("click", reviewSelectedObject);
-  elements.loadRhinoReviewButton.addEventListener("click", () => loadLatestRhinoReview());
-  elements.scanButton.addEventListener("click", scanModel);
-  elements.actionButtons.forEach((button) => {
-    button.addEventListener("click", () => submitAction(button.dataset.action));
-  });
+  elements.refreshRhinoObjectsButton.addEventListener("click", refreshRhinoObjects);
+  elements.sendSelectionButton.addEventListener("click", sendSelectionToRhino);
 }
 
 function render() {
   renderObjectList();
   renderObjectDetails();
-  renderRecommendation();
 }
 
 bindEvents();
 render();
-window.setInterval(() => loadLatestRhinoReview({ quiet: true }), 4000);

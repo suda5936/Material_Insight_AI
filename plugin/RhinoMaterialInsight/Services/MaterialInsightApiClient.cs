@@ -27,43 +27,52 @@ public sealed class MaterialInsightApiClient
         _httpClient = httpClient;
     }
 
-    public async Task<RecommendationResult> ReviewObjectAsync(
-        ReviewObjectRequest request,
+    public async Task<RhinoObjectSyncResponse> SyncRhinoObjectsAsync(
+        RhinoObjectSyncRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             using var response = await _httpClient.PostAsJsonAsync(
-                "/api/v1/review-object",
+                "/api/v1/rhino/objects",
                 request,
                 JsonOptions,
                 cancellationToken);
 
             response.EnsureSuccessStatusCode();
-            var recommendation = await response.Content.ReadFromJsonAsync<RecommendationResult>(
+            var syncResponse = await response.Content.ReadFromJsonAsync<RhinoObjectSyncResponse>(
                 JsonOptions,
                 cancellationToken);
 
-            return recommendation ?? throw new InvalidOperationException("Backend returned an empty recommendation.");
+            return syncResponse ?? throw new InvalidOperationException("Backend returned an empty sync response.");
         }
         catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
         {
             throw new TimeoutException(
-                "Material Insight backend did not respond within 8 seconds. Check that FastAPI is running at http://localhost:8000.",
+                "Construction CP Recovery backend did not respond within 8 seconds. Check that FastAPI is running at http://localhost:8000.",
                 exception);
         }
     }
 
-    public async Task SaveReviewActionAsync(
-        ReviewActionRequest request,
+    public async Task<RhinoSelectionState> GetRhinoSelectionAsync(
+        string projectId,
         CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.PostAsJsonAsync(
-            "/api/v1/review-actions",
-            request,
-            JsonOptions,
-            cancellationToken);
+        try
+        {
+            var path = $"/api/v1/rhino/selection?project_id={Uri.EscapeDataString(projectId)}";
+            var selection = await _httpClient.GetFromJsonAsync<RhinoSelectionState>(
+                path,
+                JsonOptions,
+                cancellationToken);
 
-        response.EnsureSuccessStatusCode();
+            return selection ?? throw new InvalidOperationException("Backend returned an empty selection state.");
+        }
+        catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException(
+                "Construction CP Recovery backend did not respond within 8 seconds. Check that FastAPI is running at http://localhost:8000.",
+                exception);
+        }
     }
 }

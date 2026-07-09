@@ -8,3 +8,4 @@ venv/
 !.env.example
 bin/
 obj/
+.tmp_skp_inspect/
